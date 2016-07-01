@@ -2,261 +2,194 @@ unit Amazon.Client;
 
 interface
 
-uses Amazon.Interfaces,  System.SysUtils, Amazon.Credentials,
-     Amazon.Utils, Amazon.Response,System.Rtti, Amazon.RESTClient ,
-     Amazon.Request, Amazon.SignatureV4;
+uses Amazon.Interfaces, System.SysUtils, Amazon.Credentials,
+  Amazon.Utils, Amazon.Response, System.Rtti, Amazon.RESTClient,
+  Amazon.Request, Amazon.SignatureV4;
 
 type
-  TAmazonClient = class(TInterfacedObject,IAmazonClient)
+  TAmazonClient = class(TInterfacedObject, IAmazonClient)
   protected
-    FAmazonCredentials: tAmazonCredentials;
-    fsendpoint: UTF8String;
-    fsservice: UTF8String;
-    fshost: UTF8String;
-    fsAuthorization_header: UTF8String;
-
-
+    fAmazonCredentials: TAmazonCredentials;
+    fEndPoint: UTF8String;
+    fService: UTF8String;
+    fHost: UTF8String;
+    fAuthorization_Header: UTF8String;
   private
-    function getsecret_key: UTF8String;
-    procedure setsecret_key(value: UTF8String);
-    function getaccess_key: UTF8String;
-    procedure setaccess_key(value: UTF8String);
-    function getregion: UTF8String;
-    procedure setregion(value: UTF8String);
-    function getprofile: UTF8String;
-    procedure setprofile(value: UTF8String);
-    function getcredential_file: UTF8String;
-    procedure setcredential_file(value: UTF8String);
-    function getendpoint: UTF8String;
-    procedure setendpoint(value: UTF8String);
-    function getservice: UTF8String;
-    procedure setservice(value: UTF8String);
-    function gethost: UTF8String;
-    procedure sethost(value: UTF8String);
+    function GetSecret_Key: UTF8String;
+    procedure SetSecret_Key(Value: UTF8String);
+    function GetAccess_Key: UTF8String;
+    procedure SetAccess_Key(Value: UTF8String);
+    function GetRegion: UTF8String;
+    procedure SetRegion(Value: UTF8String);
+    function GetEndPoint: UTF8String;
+    procedure SetEndPoint(Value: UTF8String);
+    function GetService: UTF8String;
+    procedure SetService(Value: UTF8String);
+    function GetHost: UTF8String;
+    procedure SetHost(Value: UTF8String);
   public
     constructor Create; overload;
-    constructor Create(asecret_key: UTF8String; aaccess_key: UTF8String); overload;
-    constructor Create(aprofile: UTF8String); overload;
-
+    constructor Create(aSecret_Key: UTF8String;
+      aAccess_Key: UTF8String); overload;
     destructor Destory;
 
-    procedure InitClient(aprofile: UTF8String;asecret_key: UTF8String; aaccess_key: UTF8String); virtual;
-
-    property profile: UTF8String read getprofile write setprofile;
-    property credential_file: UTF8String read getcredential_file write setcredential_file;
-    property region: UTF8String read getregion write setregion;
-    property secret_key: UTF8String read getsecret_key write setsecret_key;
-    property access_key: UTF8String read getaccess_key write setaccess_key;
-
-    property endpoint: UTF8String read getendpoint write setendpoint;
-    property service: UTF8String read getservice write setservice;
-    property host: UTF8String read gethost write sethost;
-
+    procedure InitClient(aSecret_Key: UTF8String;
+      aAccess_Key: UTF8String); virtual;
+    function Execute(aAmazonRequest: IAmazonRequest;
+      aAmazonSignature: IAmazonSignature;
+      aAmazonRESTClient: IAmazonRESTClient): IAmazonResponse; virtual;
     function MakeRequest(aAmazonRequest: IAmazonRequest): IAmazonResponse;
 
-    function execute(aAmazonRequest: IAmazonRequest; aAmazonSignature: IAmazonSignature; aAmazonRESTClient: IAmazonRESTClient): IAmazonResponse; virtual;
+    property Secret_Key: UTF8String read GetSecret_Key write SetSecret_Key;
+    property Access_Key: UTF8String read GetAccess_Key write SetAccess_Key;
+    property Region: UTF8String read GetRegion write SetRegion;
+    property EndPoint: UTF8String read GetEndPoint write SetEndPoint;
+    property Service: UTF8String read GetService write SetService;
+    property Host: UTF8String read GetHost write SetHost;
   end;
 
 implementation
 
 constructor TAmazonClient.Create;
 begin
-  InitClient('', '', '');
+  InitClient('', '');
 end;
 
-constructor TAmazonClient.Create(asecret_key: UTF8String;
-                                 aaccess_key: UTF8String);
+constructor TAmazonClient.Create(aSecret_Key: UTF8String;
+  aAccess_Key: UTF8String);
 begin
-  InitClient('', asecret_key,aaccess_key);
-end;
-
-constructor TAmazonClient.Create(aprofile: UTF8String);
-begin
-  InitClient(aprofile, '', '');
+  InitClient(aSecret_Key, aAccess_Key);
 end;
 
 destructor TAmazonClient.Destory;
 begin
-  FreeandNil(FAmazonCredentials);
+  FreeandNil(fAmazonCredentials);
 end;
 
-
-procedure TAmazonClient.InitClient(aprofile: UTF8String;asecret_key: UTF8String; aaccess_key: UTF8String);
+procedure TAmazonClient.InitClient(aSecret_Key: UTF8String;
+  aAccess_Key: UTF8String);
 begin
-  FAmazonCredentials := tAmazonCredentials.Create;
+  fAmazonCredentials := TAmazonCredentials.Create;
 
-  fsendpoint := '';
-  fsservice := '';
-  fshost := '';
+  fEndPoint := '';
+  fService := '';
+  fHost := '';
 
-  FAmazonCredentials.profile := aprofile;
-  FAmazonCredentials.access_key := aaccess_key;
-  FAmazonCredentials.secret_key := asecret_key;
-
-  if (aaccess_key = '') and (asecret_key = '') then
-    begin
-      if FAmazonCredentials.Iscredential_file then
-        begin
-          if FAmazonCredentials.profile = '' then FAmazonCredentials.profile := 'default';
-
-          FAmazonCredentials.Loadcredential_file;
-        end
-      else
-        FAmazonCredentials.GetEnvironmentVariables;
-    end;
+  fAmazonCredentials.Access_Key := aAccess_Key;
+  fAmazonCredentials.Secret_Key := aSecret_Key;
 end;
 
-function TAmazonClient.getregion: UTF8String;
-begin
-  result := '';
-
-  if Assigned(FAmazonCredentials) then
-    result := FAmazonCredentials.region;
-
-end;
-
-procedure TAmazonClient.setregion(value: UTF8String);
-begin
-  if Assigned(FAmazonCredentials) then
-    FAmazonCredentials.region := value;
-end;
-
-function TAmazonClient.getaccess_key: UTF8String;
+function TAmazonClient.GetRegion: UTF8String;
 begin
   Result := '';
-
-  if Assigned(FAmazonCredentials) then
-    result := FAmazonCredentials.access_key;
+  if Assigned(fAmazonCredentials) then
+    Result := fAmazonCredentials.Region;
 end;
 
-procedure TAmazonClient.setaccess_key(value: UTF8String);
+procedure TAmazonClient.SetRegion(Value: UTF8String);
 begin
-  if Assigned(FAmazonCredentials) then
-    FAmazonCredentials.access_key := value;
+  if Assigned(fAmazonCredentials) then
+    fAmazonCredentials.Region := Value;
 end;
 
-function TAmazonClient.getsecret_key: UTF8String;
-begin
-  Result := '';
-  if Assigned(FAmazonCredentials) then
-    Result := FAmazonCredentials.secret_key;
-end;
-
-procedure TAmazonClient.setsecret_key(value: UTF8String);
-begin
-  if Assigned(FAmazonCredentials) then
-    FAmazonCredentials.secret_key := value;
-end;
-
-function TAmazonClient.getprofile: UTF8String;
+function TAmazonClient.GetAccess_Key: UTF8String;
 begin
   Result := '';
-
-  if Assigned(FAmazonCredentials) then
-    result := FAmazonCredentials.profile;
+  if Assigned(fAmazonCredentials) then
+    Result := fAmazonCredentials.Access_Key;
 end;
 
-procedure TAmazonClient.setprofile(value: UTF8String);
+procedure TAmazonClient.SetAccess_Key(Value: UTF8String);
 begin
- if Assigned(FAmazonCredentials) then
-    FAmazonCredentials.profile := value;
+  if Assigned(fAmazonCredentials) then
+    fAmazonCredentials.Access_Key := Value;
 end;
 
-function TAmazonClient.getcredential_file: UTF8String;
+function TAmazonClient.GetSecret_Key: UTF8String;
 begin
-  result := '';
-
-  if Assigned(FAmazonCredentials) then
-    result := FAmazonCredentials.credential_file;
+  Result := '';
+  if Assigned(fAmazonCredentials) then
+    Result := fAmazonCredentials.Secret_Key;
 end;
 
-procedure TAmazonClient.setcredential_file(value: UTF8String);
+procedure TAmazonClient.SetSecret_Key(Value: UTF8String);
 begin
- if Assigned(FAmazonCredentials) then
-    FAmazonCredentials.credential_file := value;
+  if Assigned(fAmazonCredentials) then
+    fAmazonCredentials.Secret_Key := Value;
 end;
 
-function TAmazonClient.getendpoint: UTF8String;
+function TAmazonClient.GetEndPoint: UTF8String;
 begin
-  result := fsendpoint;
+  Result := fEndPoint;
 end;
 
-procedure TAmazonClient.setendpoint(value: UTF8String);
+procedure TAmazonClient.SetEndPoint(Value: UTF8String);
 begin
-  fsendpoint := value;
+  fEndPoint := Value;
 end;
 
-function TAmazonClient.getservice: UTF8String;
+function TAmazonClient.GetService: UTF8String;
 begin
-  result := fsservice;
+  Result := fService;
 end;
 
-procedure TAmazonClient.setservice(value: UTF8String);
+procedure TAmazonClient.SetService(Value: UTF8String);
 begin
-  fsservice := value;
+  fService := Value;
 end;
 
-function TAmazonClient.gethost: UTF8String;
+function TAmazonClient.GetHost: UTF8String;
 begin
-  result := fshost;
+  Result := fHost;
 end;
 
-procedure TAmazonClient.sethost(value: UTF8String);
+procedure TAmazonClient.SetHost(Value: UTF8String);
 begin
-  fshost := value;
+  fHost := Value;
 end;
 
-function TAmazonClient.execute(aAmazonRequest: IAmazonRequest; aAmazonSignature: IAmazonSignature; aAmazonRESTClient: IAmazonRESTClient): IAmazonResponse;
+function TAmazonClient.Execute(aAmazonRequest: IAmazonRequest;
+  aAmazonSignature: IAmazonSignature;
+  aAmazonRESTClient: IAmazonRESTClient): IAmazonResponse;
 var
-  amz_date: UTF8String;
-  date_stamp: UTF8String;
-  content_type: UTF8String;
-  fsresponse: UTF8String;
-  FAmazonResponse : tAmazonResponse;
+  AWS_Date: UTF8String;
+  Date_Stamp: UTF8String;
+  Content_Type: UTF8String;
+  Response: UTF8String;
+  AmazonResponse: TAmazonResponse;
 begin
-  result := NIL;
-  Try
-    GetAWSDate_Stamp(UTCNow,amz_date, date_stamp);
-    Content_type := aAmazonSignature.GetContent_type;
+  Result := NIL;
+  try
+    GetAWSDate_Stamp(UTCNow, AWS_Date, Date_Stamp);
+    Content_Type := aAmazonSignature.GetContent_type;
 
-    aAmazonRequest.secret_key := secret_key;
-    aAmazonRequest.access_key := access_key;
-
-    aAmazonRequest.service := service;
-    aAmazonRequest.endpoint := endpoint;
-    if host = '' then
-      aAmazonRequest.host := GetAWSHost(aAmazonRequest.endpoint)
-    else aAmazonRequest.host := host;
-
-    aAmazonRequest.region := region;
-
-    aAmazonRequest.amz_date := amz_date;
-    aAmazonRequest.date_stamp := date_stamp;
-
+    aAmazonRequest.Secret_Key := Secret_Key;
+    aAmazonRequest.Access_Key := Access_Key;
+    aAmazonRequest.Service := Service;
+    aAmazonRequest.EndPoint := EndPoint;
+    if Host = '' then
+      aAmazonRequest.Host := GetAWSHost(aAmazonRequest.EndPoint)
+    else
+      aAmazonRequest.Host := Host;
+    aAmazonRequest.Region := Region;
+    aAmazonRequest.AWS_Date := AWS_Date;
+    aAmazonRequest.Date_Stamp := Date_Stamp;
     aAmazonSignature.Sign(aAmazonRequest);
+    aAmazonRESTClient.Content_Type := Content_Type;
 
-    aAmazonRESTClient.Content_type := Content_type;
+    aAmazonRESTClient.AddHeader('X-Amz-Date', AWS_Date);
+    aAmazonRESTClient.AddHeader('X-Amz-Target', aAmazonRequest.Target);
+    aAmazonRESTClient.AddHeader('Authorization', aAmazonSignature.Authorization_Header);
 
-    aAmazonRESTClient.AddHeader('X-Amz-Date' , amz_date);
-    aAmazonRESTClient.AddHeader('X-Amz-Target' , aAmazonRequest.target);
-    aAmazonRESTClient.AddHeader('Authorization',aAmazonSignature.Authorization_header);
-
-    fsresponse := '';
-
-    aAmazonRESTClient.Post(endpoint, aAmazonRequest.request_parameters,  fsresponse);
-
-  Finally
-    FAmazonResponse := tAmazonResponse.Create;
-
-    FAmazonResponse.Response := fsresponse;
-    FAmazonResponse.ResponseCode := aAmazonRESTClient.ResponseCode;
-    FAmazonResponse.ResponseText := aAmazonRESTClient.ResponseText;
-
-    Result := FAmazonResponse;
-  End;
-
-
-
+    Response := '';
+    aAmazonRESTClient.Post(EndPoint, aAmazonRequest.request_parameters, Response);
+  finally
+    AmazonResponse := TAmazonResponse.Create;
+    AmazonResponse.Response := Response;
+    AmazonResponse.ResponseCode := aAmazonRESTClient.ResponseCode;
+    AmazonResponse.ResponseText := aAmazonRESTClient.ResponseText;
+    Result := AmazonResponse;
+  end;
 end;
 
 function TAmazonClient.MakeRequest(aAmazonRequest: IAmazonRequest): IAmazonResponse;
@@ -264,16 +197,14 @@ var
   FAmazonRESTClient: TAmazonRESTClient;
   FAmazonSignatureV4: TAmazonSignatureV4;
 begin
-  Try
+  try
     FAmazonSignatureV4 := TAmazonSignatureV4.Create;
     FAmazonRESTClient := TAmazonRESTClient.Create;
-
-    Result := execute(aAmazonRequest, fAmazonSignatureV4, FAmazonRESTClient);
-  Finally
+    result := Execute(aAmazonRequest, FAmazonSignatureV4, FAmazonRESTClient);
+  finally
     FAmazonSignatureV4 := NIL;
     FAmazonRESTClient := NIL;
-  End;
+  end;
 end;
-
 
 end.

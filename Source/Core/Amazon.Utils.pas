@@ -2,21 +2,19 @@ unit Amazon.Utils;
 
 interface
 
-uses Classes,IdDateTimeStamp, Soap.XSBuiltIns, System.SysUtils, System.DateUtils, idGlobal,
-     IdHMACSHA1, IdSSLOpenSSL, IdHashSHA, IdHashMessageDigest, idHash,
-     Windows, Data.DBXJSONReflect, Data.DBXJSON   ;
-
-
+uses Classes, IdDateTimeStamp, Soap.XSBuiltIns, System.SysUtils,
+  System.DateUtils, idGlobal,
+  IdHMACSHA1, IdSSLOpenSSL, IdHashSHA, IdHashMessageDigest, idHash,
+  Windows, Data.DBXJSONReflect, Data.DBXJSON, System.JSON;
 
 function DateTimeToISO8601(const aDateTime: TDateTime): string;
-procedure GetAWSDate_Stamp(const aDateTime: Tdatetime; var aamz_date, adate_stamp: UTF8String);
+procedure GetAWSDate_Stamp(const aDateTime: TDateTime; var aAWS_Date, aDate_Stamp: UTF8String);
 function UTCNow: TDateTime;
-function HmacSHA256Ex(const AKey: TidBytes;aStr: UTF8String): TidBytes;
+function HmacSHA256Ex(const AKey: TidBytes; aStr: UTF8String): TidBytes;
 function BytesToHex(const Bytes: array of byte): string;
 function HexToBytes(const S: String): TidBytes;
 function HashSHA256(aStr: String): String;
-function GetAWSUserDir: UTF8String;
-function GetAWSHost(aendpoint: UTF8String): UTF8String;
+function GetAWSHost(aEndpoint: UTF8String): UTF8String;
 function DoubleQuotedStr(const S: UTF8String): UTF8String;
 function DeepCopy(aValue: TObject): TObject;
 
@@ -28,7 +26,6 @@ begin
   Result := '"' + Result + '"';
 end;
 
-
 function DateTimeToISO8601(const aDateTime: TDateTime): string;
 Var
   D: TXSDateTime;
@@ -39,7 +36,7 @@ begin
   DecodeDate(aDateTime, Year, Month, Day);
   DecodeTime(aDateTime, Hour, Min, Sec, MSec);
 
-  FDateTime := EncodeDateTime(Year, Month, Day, Hour, Min, Sec,  MSec);
+  FDateTime := EncodeDateTime(Year, Month, Day, Hour, Min, Sec, MSec);
 
   D := TXSDateTime.Create;
   D.AsDateTime := FDateTime;
@@ -49,33 +46,31 @@ begin
   D.Free;
 end;
 
-
-//http://docs.aws.amazon.com/general/latest/gr/sigv4-date-handling.html
-
-procedure GetAWSDate_Stamp(const aDateTime: Tdatetime; var aamz_date, adate_stamp: UTF8String);
+// http://docs.aws.amazon.com/general/latest/gr/sigv4-date-handling.html
+procedure GetAWSDate_Stamp(const aDateTime: TDateTime;
+  var aAWS_Date, aDate_Stamp: UTF8String);
 begin
-  aamz_date := FormatDateTime('YYYYMMDD"T"HHMMSS"Z"', aDateTime);
-
-  adate_stamp := FormatDateTime('YYYYMMDD', aDateTime);
+  aAWS_Date := FormatDateTime('YYYYMMDD"T"HHMMSS"Z"', aDateTime);
+  aDate_Stamp := FormatDateTime('YYYYMMDD', aDateTime);
 end;
-
 
 function UTCNow: TDateTime;
 begin
   Result := TTimeZone.Local.ToUniversalTime(Now);
 end;
 
-function HmacSHA256Ex(const AKey: TidBytes;aStr: UTF8String): TidBytes;
+function HmacSHA256Ex(const AKey: TidBytes; aStr: UTF8String): TidBytes;
 Var
   FHMACSHA256: TIdHMACSHA256;
 begin
-  if not IdSSLOpenSSL.LoadOpenSSLLibrary then Exit;
+  if not IdSSLOpenSSL.LoadOpenSSLLibrary then
+    Exit;
 
-  FHMACSHA256:= TIdHMACSHA256.Create;
+  FHMACSHA256 := TIdHMACSHA256.Create;
   try
-    FHMACSHA256.Key := aKey;
+    FHMACSHA256.Key := AKey;
 
-    Result := FHMACSHA256.HashValue(ToBytes(AStr));
+    Result := FHMACSHA256.HashValue(ToBytes(aStr));
   finally
     FHMACSHA256.Free;
   end;
@@ -88,10 +83,11 @@ var
   i: integer;
   lsOutput: String;
 begin
-  SetLength(lsOutput, 2*Length(Bytes));
-  for i :=  0 to Length(Bytes)-1 do begin
-    LsOutput[1 + 2*i + 0] := HexSymbols[1 + Bytes[i] shr 4];
-    lsOutput[1 + 2*i + 1] := HexSymbols[1 + Bytes[i] and $0F];
+  SetLength(lsOutput, 2 * Length(Bytes));
+  for i := 0 to Length(Bytes) - 1 do
+  begin
+    lsOutput[1 + 2 * i + 0] := HexSymbols[1 + Bytes[i] shr 4];
+    lsOutput[1 + 2 * i + 1] := HexSymbols[1 + Bytes[i] and $0F];
   end;
 
   Result := Lowercase(lsOutput);
@@ -107,40 +103,25 @@ function HashSHA256(aStr: String): String;
 var
   FHashSHA256: TIdHashSHA256;
 begin
+  if not IdSSLOpenSSL.LoadOpenSSLLibrary then
+    Exit;
 
-  if not IdSSLOpenSSL.LoadOpenSSLLibrary then Exit;
-
-  FHashSHA256:= TIdHashSHA256.Create;
+  FHashSHA256 := TIdHashSHA256.Create;
   try
-    Result := Lowercase(FHashSHA256.HashStringAsHex(UTF8String(AStr)));
- finally
+    Result := Lowercase(FHashSHA256.HashStringAsHex(UTF8String(aStr)));
+  finally
     FHashSHA256.Free;
   end;
 end;
 
-function GetAWSUserDir: UTF8String;
-begin
-  Result := GetEnvironmentVariable('USERPROFILE') + '\.aws';
-
-  if Not DirectoryExists(Result) then Result := '';
-
-end;
-
-function GetAWSHost(aendpoint: UTF8String): UTF8String;
+function GetAWSHost(aEndpoint: UTF8String): UTF8String;
 var
-   fsnewhost: UTF8String;
+  NewHost: UTF8String;
 begin
-  fsnewhost := StringReplace(aendpoint, 'http://', '',
-                              [rfReplaceAll, rfIgnoreCase]);
-
-  fsnewhost := StringReplace(fsnewhost, 'https://', '',
-                              [rfReplaceAll, rfIgnoreCase]);
-
-  result := StringReplace(fsnewhost, '/', '',
-                              [rfReplaceAll, rfIgnoreCase]);
-
+  NewHost := StringReplace(aEndpoint, 'http://', '', [rfReplaceAll, rfIgnoreCase]);
+  NewHost := StringReplace(NewHost, 'https://', '', [rfReplaceAll, rfIgnoreCase]);
+  Result := StringReplace(NewHost, '/', '', [rfReplaceAll, rfIgnoreCase]);
 end;
-
 
 function DeepCopy(aValue: TObject): TObject;
 var
@@ -148,14 +129,14 @@ var
   UnMarshalObj: TJSONUnMarshal;
   JSONValue: TJSONValue;
 begin
-  Result:= nil;
+  Result := nil;
   MarshalObj := TJSONMarshal.Create;
   UnMarshalObj := TJSONUnMarshal.Create;
   try
     JSONValue := MarshalObj.Marshal(aValue);
     try
       if Assigned(JSONValue) then
-        Result:= UnMarshalObj.Unmarshal(JSONValue);
+        Result := UnMarshalObj.Unmarshal(JSONValue);
     finally
       JSONValue.Free;
     end;
@@ -164,7 +145,5 @@ begin
     UnMarshalObj.Free;
   end;
 end;
-
-
 
 end.

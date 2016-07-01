@@ -23,9 +23,7 @@ type
     property Response: UTF8String read getreponse write setreponse;
   end;
 
-
 implementation
-
 
 procedure TAmazonResponse.setresponsecode(value: integer);
 begin

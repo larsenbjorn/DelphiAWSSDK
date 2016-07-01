@@ -9,115 +9,122 @@ const
    awsSIGN = 'AWS4';
    awsContent_typeV4 = 'application/x-amz-json-1.0';
 
-function GetSignatureV4Key(aSecret_Access_Key, adateStamp, aregionName, aserviceName: UTF8String): TidBytes;
-function GetSignatureV4(aSignatureV4Key: TidBytes; aString_to_sign: UTF8String): UTF8String;
+function GetSignatureV4Key(aSecret_Access_Key, aDateStamp, aRegionName, aServiceName: UTF8String): TidBytes;
+function GetSignatureV4(aSignatureV4Key: TidBytes; aString_to_Sign: UTF8String): UTF8String;
 
 type
-  TAmazonSignatureV4 = class(TInterfacedObject,IAmazonSignature)
-    protected
-    private
-      fsmethod: UTF8String;
-      fscontent_type: UTF8String;
-      fsresponse: UTF8String;
-      fscanonical_uri: UTF8String;
-      fscanonical_queryString: UTF8String;
-      fscanonical_headers: UTF8String;
-      fssigned_headers: UTF8String;
-      fspayload_hash: UTF8String;
-      fscanonical_request: UTF8String;
-      fsalgorithm: UTF8String;
-      fscredential_scope: UTF8String;
-      fsString_to_sign: UTF8String;
-      fSignatureV4Key: TidBytes;
-      fsSignature: UTF8String;
-      fsauthorization_header: UTF8String;
+  TAmazonSignatureV4 = class(TInterfacedObject, IAmazonSignature)
+  protected
+  private
+    fMethod: UTF8String;
+    fContent_Type: UTF8String;
+    fResponse: UTF8String;
+    fCanonical_URI: UTF8String;
+    fCanonical_QueryString: UTF8String;
+    fCanonical_Headers: UTF8String;
+    fSigned_Headers: UTF8String;
+    fPayload_Hash: UTF8String;
+    fCanonical_Request: UTF8String;
+    fAlgorithm: UTF8String;
+    fCredential_Scope: UTF8String;
+    fString_to_Sign: UTF8String;
+    fSignatureV4Key: TidBytes;
+    fSignature: UTF8String;
+    fAuthorization_Header: UTF8String;
 
-      function getsignature: UTF8String;
-      function getauthorization_header: UTF8String;
-    public
-      procedure Sign(aRequest: IAmazonRequest);
-      function GetContent_type: UTF8String;
+    function GetSignature: UTF8String;
+    function GetAuthorization_Header: UTF8String;
+  public
+    procedure Sign(aRequest: IAmazonRequest);
+    function GetContent_Type: UTF8String;
 
-      property Signature: UTF8String read getsignature;
-      property Authorization_header: UTF8String read getauthorization_header;
-
-
-    end;
-
-
+    property Signature: UTF8String read GetSignature;
+    property Authorization_Header: UTF8String read GetAuthorization_Header;
+  end;
 
 implementation
 
-function GetSignatureV4Key(aSecret_Access_Key, adateStamp, aregionName, aserviceName: UTF8String): TidBytes;
+function GetSignatureV4Key(aSecret_Access_Key, aDateStamp, aRegionName,
+  aServiceName: UTF8String): TidBytes;
 Var
-  kService: TidBytes;
-  kRegion: TidBytes;
-  kSecret: TidBytes;
-  kDate: TidBytes;
-  kSigning: TidBytes;
+  Service: TidBytes;
+  Region: TidBytes;
+  Secret: TidBytes;
+  Date: TidBytes;
+  Signing: TidBytes;
 begin
-  kSecret := ToBytes(UTF8Encode(awsSIGN + aSecret_Access_Key));
-  kDate := HmacSHA256Ex(kSecret, adateStamp);
-  kRegion := HmacSHA256Ex(kDate, aregionName );
-  kService := HmacSHA256Ex(kRegion, aserviceName);
-  kSigning := HmacSHA256Ex(kService, 'aws4_request');
+  Secret := ToBytes(UTF8Encode(awsSIGN + aSecret_Access_Key));
+  Date := HmacSHA256Ex(Secret, adateStamp);
+  Region := HmacSHA256Ex(Date, aregionName );
+  Service := HmacSHA256Ex(Region, aserviceName);
+  Signing := HmacSHA256Ex(Service, 'aws4_request');
 
-  Result := kSigning;
+  Result := Signing;
 end;
 
-function GetSignatureV4(aSignatureV4Key: TidBytes; aString_to_sign: UTF8String): UTF8String;
+function GetSignatureV4(aSignatureV4Key: TidBytes; aString_to_Sign: UTF8String): UTF8String;
 begin
-  Result :=BytesToHex(HmacSHA256Ex(aSignatureV4Key, aString_to_sign));
+  Result := BytesToHex(HmacSHA256Ex(aSignatureV4Key, aString_to_Sign));
 end;
 
 procedure TAmazonSignatureV4.Sign(aRequest: IAmazonRequest);
 begin
-  fsSignature := '';
-  fsauthorization_header := '';
+  fSignature := '';
+  fAuthorization_Header := '';
+  fMethod := 'POST';
+  fContent_Type := GetContent_type;
+  fCanonical_URI := '/';
+  fCanonical_QueryString := '';
 
-  fsmethod := 'POST';
+  fCanonical_Headers := 'content-type:' + fContent_Type + char(10) +
+                        'host:' + aRequest.Host + char(10)  +
+                        'x-amz-date:' + aRequest.AWS_Date + char(10) +
+                        'x-amz-target:' + aRequest.TargetPrefix + '.' +
+                                          aRequest.OperationName + char(10);
+  fSigned_Headers := 'content-type;host;x-amz-date;x-amz-target';
+  fPayload_Hash := HashSHA256(aRequest.Request_Parameters);
+  fCanonical_Request := fMethod + char(10) +
+                        fCanonical_URI + char(10) +
+                        fCanonical_QueryString + char(10) +
+                        fCanonical_Headers + char(10) +
+                        fSigned_Headers + char(10) +
+                        fPayload_Hash;
 
-  fsContent_type := GetContent_type;
+  fAlgorithm := awsALGORITHM;
+  fCredential_Scope := aRequest.Date_Stamp + '/' +
+                       aRequest.Region + '/' +
+                       aRequest.Service + '/' + 'aws4_request';
 
-  fscanonical_uri := '/';
+  fString_to_Sign := fAlgorithm + char(10) +
+                     aRequest.AWS_Date + char(10) +
+                     fCredential_Scope + char(10) +
+                     HashSHA256(fCanonical_Request);
 
-  fscanonical_querystring := '';
+  fSignatureV4Key := GetSignatureV4Key(aRequest.Secret_Key, aRequest.Date_Stamp,
+    aRequest.Region, aRequest.Service);
 
-  fscanonical_headers := 'content-type:' + fscontent_type + char(10) + 'host:' + aRequest.host + char(10)  + 'x-amz-date:' +
-      aRequest.amz_date + char(10)  + 'x-amz-target:' + aRequest.targetPrefix + '.' + aRequest.operationName + char(10);
+  fSignature :=  GetSignatureV4(fSignatureV4Key, fString_to_Sign );
 
-  fssigned_headers := 'content-type;host;x-amz-date;x-amz-target';
-
-  fspayload_hash := HashSHA256(aRequest.request_parameters);
-
-  fscanonical_request := fsmethod + char(10)  + fscanonical_uri + char(10)  + fscanonical_querystring + char(10)  + fscanonical_headers + char(10)  + fssigned_headers + char(10)  + fspayload_hash;
-
-  fsalgorithm := awsALGORITHM;
-  fscredential_scope := aRequest.date_stamp + '/' + aRequest.region + '/' + aRequest.service + '/' + 'aws4_request';
-
-  fsstring_to_sign := fsalgorithm + char(10)  +  aRequest.amz_date + char(10)  +  fscredential_scope + char(10)  +  HashSHA256(fscanonical_request);
-
-  fSignatureV4Key := GetSignatureV4Key(aRequest.secret_key, aRequest.date_stamp, aRequest.region, aRequest.service);
-
-  fssignature :=  GetSignatureV4(fSignatureV4Key, fsstring_to_sign );
-
-  fsauthorization_header := fsalgorithm + ' ' + 'Credential=' + aRequest.access_key + '/' + fscredential_scope + ', ' +  'SignedHeaders=' + fssigned_headers + ', ' + 'Signature=' + fssignature;
+  fAuthorization_Header := fAlgorithm + ' ' +
+                           'Credential=' + aRequest.access_key + '/' +
+                                           fCredential_Scope + ', ' +
+                           'SignedHeaders=' + fSigned_Headers + ', ' +
+                           'Signature=' + fSignature;
 end;
 
-function TAmazonSignatureV4.getsignature: UTF8String;
+function TAmazonSignatureV4.GetSignature: UTF8String;
 begin
-  result := fssignature;
+  Result := fSignature;
 end;
 
-function TAmazonSignatureV4.getauthorization_header: UTF8String;
+function TAmazonSignatureV4.GetAuthorization_Header: UTF8String;
 begin
-  result := fsauthorization_header;
+  Result := fAuthorization_Header;
 end;
-
 
 function TAmazonSignatureV4.GetContent_type: UTF8String;
 begin
-  result := awsContent_typeV4;
+  Result := awsContent_typeV4;
 end;
 
 end.
