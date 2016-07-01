@@ -7,52 +7,52 @@ Uses Amazon.Interfaces;
 type
   TAmazonResponse = class(TInterfacedObject, IAmazonResponse)
   private
-    firesponsecode: Integer;
-    fsreponsetext: UTF8String;
-    fsresponse: UTF8STring;
+    fResponseCode: Integer;
+    fReponseText: UTF8String;
+    fResponse: UTF8STring;
   protected
-    procedure setresponsecode(value: integer);
-    procedure setreponsetext(value: UTF8String);
-    procedure setreponse(value: UTF8String);
-    function getresponsecode: integer;
-    function getreponsetext: UTF8String;
-    function getreponse: UTF8String;
+    procedure SetResponseCode(Value: integer);
+    procedure SetReponseText(Value: UTF8String);
+    procedure SetReponse(Value: UTF8String);
+    function GetResponseCode: integer;
+    function GetReponseText: UTF8String;
+    function GetReponse: UTF8String;
   public
-    property ResponseText: UTF8String read getreponsetext write setreponsetext;
-    property ResponseCode: Integer read getresponsecode write setresponsecode;
-    property Response: UTF8String read getreponse write setreponse;
+    property ResponseText: UTF8String read GetReponseText write SetReponseText;
+    property ResponseCode: Integer read GetResponseCode write SetResponseCode;
+    property Response: UTF8String read GetReponse write SetReponse;
   end;
 
 implementation
 
-procedure TAmazonResponse.setresponsecode(value: integer);
+procedure TAmazonResponse.SetResponseCode(Value: integer);
 begin
-  firesponsecode := value;
+  fResponseCode := Value;
 end;
 
-procedure TAmazonResponse.setreponsetext(value: UTF8String);
+procedure TAmazonResponse.SetReponseText(Value: UTF8String);
 begin
-  fsreponsetext := value;
+  fReponseText := Value;
 end;
 
-procedure TAmazonResponse.setreponse(value: UTF8String);
+procedure TAmazonResponse.SetReponse(Value: UTF8String);
 begin
-  fsresponse := value;
+  fResponse := Value;
 end;
 
-function TAmazonResponse.getresponsecode: integer;
+function TAmazonResponse.GetResponseCode: integer;
 begin
-  result := firesponsecode;
+  Result := fResponseCode;
 end;
 
-function TAmazonResponse.getreponsetext: UTF8String;
+function TAmazonResponse.GetReponseText: UTF8String;
 begin
-  result := fsreponsetext;
+  Result := fReponseText;
 end;
 
-function TAmazonResponse.getreponse: UTF8String;
+function TAmazonResponse.GetReponse: UTF8String;
 begin
-  result := fsresponse;
+  Result := fResponse;
 end;
 
 end.

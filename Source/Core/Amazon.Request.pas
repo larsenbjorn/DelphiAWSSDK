@@ -7,193 +7,185 @@ Uses Amazon.Interfaces;
 type
   TAmazonRequest = class(TInterfacedObject, IAmazonRequest)
   private
-    fsAuthorization_header: UTF8String;
-    fsamz_date: UTF8String;
-    fsdate_stamp: UTF8String;
-    fssecret_key: UTF8String;
-    fsaccess_key: UTF8String;
-    fsservice: UTF8String;
-    fsendpoint: UTF8String;
-    fstargetPrefix: UTF8String;
-    fsregion: UTF8String;
-    fsrequest_parameters: UTF8String;
-    fshost: UTF8String;
-    fsoperationName: UTF8String;
+    fAuthorization_Header: UTF8String;
+    fAWS_Date: UTF8String;
+    fDate_Stamp: UTF8String;
+    fSecret_Key: UTF8String;
+    fAccess_Key: UTF8String;
+    fService: UTF8String;
+    fEndPoint: UTF8String;
+    fTargetPrefix: UTF8String;
+    fRegion: UTF8String;
+    fRequest_Parameters: UTF8String;
+    fHost: UTF8String;
+    fOperationName: UTF8String;
   protected
-    function gettarget: UTF8String;
-    function getsecret_key: UTF8String;
-    procedure setsecret_key(value: UTF8String);
-    function getaccess_key: UTF8String;
-    procedure setaccess_key(value: UTF8String);
-    function gettargetPrefix: UTF8String;
-    procedure settargetPrefix(value: UTF8String);
-    function getservice: UTF8String;
-    procedure setservice(value: UTF8String);
-    function getendpoint: UTF8String;
-    procedure setendpoint(value: UTF8String);
-    function getregion: UTF8String;
-    procedure setregion(value: UTF8String);
-    function getrequest_parameters: UTF8String;
-    procedure setrequest_parameters(value: UTF8String);
-    function gethost: UTF8String;
-    procedure sethost(value: UTF8String);
-    function getamz_date: UTF8String;
-    procedure setamz_date(value: UTF8String);
-    function getdate_stamp: UTF8String;
-    procedure setdate_stamp(value: UTF8String);
-    function getoperationName: UTF8String;
-    procedure setoperationName(value: UTF8String);
-    function getauthorization_header: UTF8String;
-    procedure setauthorization_header(value: UTF8String);
+    function GetSecret_Key: UTF8String;
+    procedure SetSecret_Key(Value: UTF8String);
+    function GetAccess_Key: UTF8String;
+    procedure SetAccess_Key(Value: UTF8String);
+    function GetRegion: UTF8String;
+    procedure SetRegion(Value: UTF8String);
+    function GetEndPoint: UTF8String;
+    procedure SetEndPoint(Value: UTF8String);
+    function GetService: UTF8String;
+    procedure SetService(Value: UTF8String);
+    function GetHost: UTF8String;
+    procedure SetHost(Value: UTF8String);
+    function GetTarget: UTF8String;
+    function GetTargetPrefix: UTF8String;
+    procedure SetTargetPrefix(Value: UTF8String);
+    function GetRequest_Parameters: UTF8String;
+    procedure SetRequest_Parameters(Value: UTF8String);
+    function GetAWS_Date: UTF8String;
+    procedure SetAWS_Date(Value: UTF8String);
+    function GetDate_Stamp: UTF8String;
+    procedure SetDate_Stamp(Value: UTF8String);
+    function GetOperationName: UTF8String;
+    procedure SetOperationName(Value: UTF8String);
+    function GetAuthorization_Header: UTF8String;
+    procedure SetAuthorization_Header(Value: UTF8String);
   public
-    property secret_key: UTF8String read getsecret_key write setsecret_key;
-    property access_key: UTF8String read getaccess_key write setaccess_key;
-
-    property targetPrefix: UTF8String read gettargetPrefix write settargetPrefix;
-    property operationName: UTF8String read getoperationName write setoperationName;
-    property service: UTF8String read getservice write setservice;
-    property endpoint: UTF8String read getendpoint write setendpoint;
-
-    property host: UTF8String read gethost write sethost;
-    property region: UTF8String read getregion write setregion;
-    property request_parameters: UTF8String read getrequest_parameters write setrequest_parameters;
-
-    property amz_date: UTF8String read getamz_date write setamz_date;
-    property date_stamp: UTF8String read getdate_stamp write setdate_stamp;
-    property authorization_header: UTF8String read getauthorization_header write setauthorization_header;
-
-    property target: UTF8String read gettarget;
+    property Secret_Key: UTF8String read GetSecret_Key write SetSecret_Key;
+    property Access_Key: UTF8String read GetAccess_Key write SetAccess_Key;
+    property TargetPrefix: UTF8String read GetTargetPrefix write SetTargetPrefix;
+    property OperationName: UTF8String read GetOperationName write SetOperationName;
+    property Service: UTF8String read GetService write SetService;
+    property EndPoint: UTF8String read getendpoint write setendpoint;
+    property Host: UTF8String read GetHost write SetHost;
+    property Region: UTF8String read getregion write setregion;
+    property Request_Parameters: UTF8String read GetRequest_Parameters write SetRequest_Parameters;
+    property AWS_Date: UTF8String read GetAWS_Date write SetAWS_Date;
+    property Date_Stamp: UTF8String read GetDate_Stamp write SetDate_Stamp;
+    property Authorization_Header: UTF8String read GetAuthorization_Header write SetAuthorization_Header;
+    property Target: UTF8String read GetTarget;
   end;
 
 implementation
 
-
 function TAmazonRequest.getsecret_key: UTF8String;
 begin
-  Result := fssecret_key;
+  Result := fSecret_Key;
 end;
 
-procedure TAmazonRequest.setsecret_key(value: UTF8String);
+procedure TAmazonRequest.setsecret_key(Value: UTF8String);
 begin
-  fssecret_key := value;
+  fSecret_Key := Value;
 end;
 
-function TAmazonRequest.getrequest_parameters: UTF8String;
+function TAmazonRequest.GetRequest_Parameters: UTF8String;
 begin
-  result := fsrequest_parameters;
+  Result := fRequest_Parameters;
 end;
 
-procedure TAmazonRequest.setrequest_parameters(value: UTF8String);
+procedure TAmazonRequest.SetRequest_Parameters(Value: UTF8String);
 begin
-  fsrequest_parameters := value;
+  fRequest_Parameters := Value;
 end;
 
 function TAmazonRequest.getaccess_key: UTF8String;
 begin
-  Result := fsaccess_key;
+  Result := fAccess_Key;
 end;
 
-procedure TAmazonRequest.setaccess_key(value: UTF8String);
+procedure TAmazonRequest.setaccess_key(Value: UTF8String);
 begin
-  fsaccess_key := value;
+  fAccess_Key := Value;
 end;
 
-function TAmazonRequest.gettargetPrefix: UTF8String;
+function TAmazonRequest.GetTargetPrefix: UTF8String;
 begin
-  Result := fstargetPrefix;
+  Result := fTargetPrefix;
 end;
 
-procedure TAmazonRequest.settargetPrefix(value: UTF8String);
+procedure TAmazonRequest.SetTargetPrefix(Value: UTF8String);
 begin
-  fstargetPrefix := value;
+  fTargetPrefix := Value;
 end;
 
 function TAmazonRequest.getservice: UTF8String;
 begin
-  Result := fsservice;
+  Result := fService;
 end;
 
-procedure TAmazonRequest.setservice(value: UTF8String);
+procedure TAmazonRequest.setservice(Value: UTF8String);
 begin
-  fsservice := value;
+  fService := Value;
 end;
 
 function TAmazonRequest.getregion: UTF8String;
 begin
-  Result := fsregion;
+  Result := fRegion;
 end;
 
-procedure TAmazonRequest.setregion(value: UTF8String);
+procedure TAmazonRequest.setregion(Value: UTF8String);
 begin
-  fsregion := value;
+  fRegion := Value;
 end;
 
 function TAmazonRequest.gethost: UTF8String;
 begin
-  Result := fshost;
+  Result := fHost;
 end;
 
-procedure TAmazonRequest.sethost(value: UTF8String);
+procedure TAmazonRequest.sethost(Value: UTF8String);
 begin
-  fshost := value;
+  fHost := Value;
 end;
 
 function TAmazonRequest.getendpoint: UTF8String;
 begin
-  Result := fsendpoint;
+  Result := fEndPoint;
 end;
 
-procedure TAmazonRequest.setendpoint(value: UTF8String);
+procedure TAmazonRequest.setendpoint(Value: UTF8String);
 begin
-  fsendpoint := value;
+  fEndPoint := Value;
 end;
 
-function TAmazonRequest.getamz_date: UTF8String;
+function TAmazonRequest.GetAWS_Date: UTF8String;
 begin
-  result := fsamz_date;
+  Result := fAWS_Date;
 end;
 
-procedure TAmazonRequest.setamz_date(value: UTF8String);
+procedure TAmazonRequest.SetAWS_Date(Value: UTF8String);
 begin
-  fsamz_date := Value;
+  fAWS_Date := Value;
 end;
 
-function TAmazonRequest.getdate_stamp: UTF8String;
+function TAmazonRequest.GetDate_Stamp: UTF8String;
 begin
-  Result := fsdate_stamp;
+  Result := fDate_Stamp;
 end;
 
-procedure TAmazonRequest.setdate_stamp(value: UTF8String);
+procedure TAmazonRequest.SetDate_Stamp(Value: UTF8String);
 begin
-  fsdate_stamp := Value;
+  fDate_Stamp := Value;
 end;
 
-function TAmazonRequest.getoperationName: UTF8String;
+function TAmazonRequest.GetOperationName: UTF8String;
 begin
-  Result := fsoperationName;
+  Result := fOperationName;
 end;
 
-procedure TAmazonRequest.setoperationName(value: UTF8String);
+procedure TAmazonRequest.SetOperationName(Value: UTF8String);
 begin
-  fsoperationName := Value;
+  fOperationName := Value;
 end;
 
-procedure TAmazonRequest.setauthorization_header(value: UTF8String);
+procedure TAmazonRequest.SetAuthorization_Header(Value: UTF8String);
 begin
-  fsAuthorization_header := value;
+  fAuthorization_Header := Value;
 end;
 
-function TAmazonRequest.getauthorization_header;
+function TAmazonRequest.GetAuthorization_Header;
 begin
-  result := fsAuthorization_header;
+  Result := fAuthorization_Header;
 end;
 
-function TAmazonRequest.gettarget: UTF8String;
+function TAmazonRequest.GetTarget: UTF8String;
 begin
-  result := targetPrefix + '.' + operationName;
+  Result := TargetPrefix + '.' + OperationName;
 end;
-
-
-
 
 end.

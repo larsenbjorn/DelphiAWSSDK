@@ -23,8 +23,7 @@ type
     constructor Create;
     destructor Destory;
     procedure AddHeader(aName, aValue: UTF8String);
-    procedure Post(aUrl: string; aRequest: UTF8String;
-      var aResponse: UTF8String);
+    procedure Post(aUrl: string; aRequest: UTF8String; var aResponse: UTF8String);
     property ResponseCode: Integer read GetResponseCode;
     property ResponseText: string read GetResponseText;
     property Content_Type: String read GetContent_Type write SetContent_Type;
