@@ -8,9 +8,9 @@ uses IdSSLOpenSSL, IPPeerAPI, IdHttp, classes, SysUtils, IdStack, IdGlobal,
 type
   TAmazonRESTClient = class(TInterfacedObject, IAmazonRESTClient)
   private
-    fContent_Type: string;
-    fErrorCode: Integer;
-    fErrorMessage: String;
+    FContent_Type: string;
+    FErrorCode: Integer;
+    FErrorMessage: String;
   protected
     FIdHttp: IIPHTTP;
     function GetResponseCode: Integer;
@@ -35,9 +35,9 @@ implementation
 
 constructor TAmazonRESTClient.Create;
 begin
-  fContent_Type := '';
-  fErrorCode := 0;
-  fErrorMessage := '';
+  FContent_Type := '';
+  FErrorCode := 0;
+  FErrorMessage := '';
 
   FIdHttp := PeerFactory.CreatePeer('', IIPHTTP, nil) as IIPHTTP;
   FIdHttp.IOHandler := PeerFactory.CreatePeer('', IIPSSLIOHandlerSocketOpenSSL,
@@ -75,10 +75,10 @@ begin
   except
     on E: EIPHTTPProtocolExceptionPeer do
     begin
-      fErrorCode := E.ErrorCode;
-      fErrorMessage := E.ErrorMessage;
+      FErrorCode := E.ErrorCode;
+      FErrorMessage := E.ErrorMessage;
       if Trim(aResponse) = '' then
-        aResponse := fErrorMessage;
+        aResponse := FErrorMessage;
       FIdHttp.Disconnect;
     end;
   end;
@@ -96,22 +96,22 @@ end;
 
 function TAmazonRESTClient.GetContent_Type: string;
 begin
-  Result := fContent_Type;
+  Result := FContent_Type;
 end;
 
 function TAmazonRESTClient.GetErrorCode: Integer;
 begin
-  Result := fErrorCode;
+  Result := FErrorCode;
 end;
 
 procedure TAmazonRESTClient.SetContent_Type(Value: string);
 begin
-  fContent_Type := Value;
+  FContent_Type := Value;
 end;
 
 function TAmazonRESTClient.GetErrorMessage: String;
 begin
-  Result := fErrorMessage;
+  Result := FErrorMessage;
 end;
 
 end.

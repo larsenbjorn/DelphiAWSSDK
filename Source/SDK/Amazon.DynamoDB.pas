@@ -28,7 +28,7 @@ type
 
    TAmazonDynamoDBClient = class(TAmazonClient)
    public
-     procedure InitClient(aSecret_Key: UTF8String; aAccess_Key: UTF8String); override;
+     //procedure InitClient(aSecret_Key: UTF8String; aAccess_Key: UTF8String); override;
      [TAmazonMarshallerAttribute('CreateTable')]
      function CreateTable(aAmazonDynamoDBRequest: TAmazonDynamoDBRequest): TAmazonDynamoDBResponse;
    end;
@@ -122,8 +122,8 @@ end;
 constructor TCreateTableRequest.Create;
 begin
   inherited;
-  FAttributeDefinitions:= TList<TAttributeDefinition>.Create;
-  FKeySchema:= TList<TKeySchemaElement>.Create;
+  FAttributeDefinitions := TList<TAttributeDefinition>.Create;
+  FKeySchema := TList<TKeySchemaElement>.Create;
   ProvisionedThroughput:= TProvisionedThroughput.Create;
 end;
 
@@ -134,27 +134,28 @@ begin
   FAttributeDefinitions.Free;
 end;
 
-procedure TAmazonDynamoDBClient.InitClient(aSecret_Key: UTF8String; aAccess_Key: UTF8String);
-begin
-  inherited InitClient(aSecret_Key, aAccess_Key);
-  Service := cDynamoDB_Service;
-end;
+//procedure TAmazonDynamoDBClient.InitClient(aSecret_Key: UTF8String; aAccess_Key: UTF8String);
+//begin
+//  inherited InitClient(aSecret_Key, aAccess_Key);
+//  Service := cDynamoDB_Service;
+//end;
 
 function TAmazonDynamoDBClient.CreateTable(aAmazonDynamoDBRequest: TAmazonDynamoDBRequest): TAmazonDynamoDBResponse;
 var
   FAmazonDynamoDBMarshaller: TAmazonDynamoDBMarshaller;
   FAmazonResponse: IAmazonResponse;
 begin
-  Try
-    aAmazonDynamoDBRequest.operationName := 'CreateTable';
+  try
+    aAmazonDynamoDBRequest.OperationName := 'CreateTable';
     FAmazonDynamoDBMarshaller:= TAmazonDynamoDBMarshaller.Create;
-    aAmazonDynamoDBRequest.request_parameters := FAmazonDynamoDBMarshaller.AmazonDynamoDBRequestToJSON(aAmazonDynamoDBRequest);
+    aAmazonDynamoDBRequest.Request_Parameters :=
+      FAmazonDynamoDBMarshaller.AmazonDynamoDBRequestToJSON(aAmazonDynamoDBRequest);
     FAmazonResponse := MakeRequest(aAmazonDynamoDBRequest);
     Result := TAmazonDynamoDBResponse.Create(FAmazonResponse);
-  Finally
+  finally
     FAmazonDynamoDBMarshaller := NIL;
     FAmazonResponse := NIl;
-  End;
+  end;
 end;
 
 function TAmazonDynamoDBMarshaller.AmazonDynamoDBRequestToJSON(aAmazonDynamoDBRequest: TAmazonDynamoDBRequest): UTF8String;

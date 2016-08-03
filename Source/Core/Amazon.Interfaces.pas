@@ -41,7 +41,6 @@ type
     property Response: UTF8String read GetReponse write SetReponse;
   end;
 
-
   IAmazonRequest = interface
     ['{DA029A3F-05C2-4286-BF0B-4FE859AC8A64}']
     function GetSecret_Key: UTF8String;

@@ -2,19 +2,19 @@ unit Amazon.Response;
 
 interface
 
-Uses Amazon.Interfaces;
+uses Amazon.Interfaces;
 
 type
   TAmazonResponse = class(TInterfacedObject, IAmazonResponse)
   private
-    fResponseCode: Integer;
-    fReponseText: UTF8String;
-    fResponse: UTF8STring;
+    FResponseCode: Integer;
+    FReponseText: UTF8String;
+    FResponse: UTF8STring;
   protected
-    procedure SetResponseCode(Value: integer);
+    procedure SetResponseCode(Value: Integer);
     procedure SetReponseText(Value: UTF8String);
     procedure SetReponse(Value: UTF8String);
-    function GetResponseCode: integer;
+    function GetResponseCode: Integer;
     function GetReponseText: UTF8String;
     function GetReponse: UTF8String;
   public
@@ -27,32 +27,32 @@ implementation
 
 procedure TAmazonResponse.SetResponseCode(Value: integer);
 begin
-  fResponseCode := Value;
+  FResponseCode := Value;
 end;
 
 procedure TAmazonResponse.SetReponseText(Value: UTF8String);
 begin
-  fReponseText := Value;
+  FReponseText := Value;
 end;
 
 procedure TAmazonResponse.SetReponse(Value: UTF8String);
 begin
-  fResponse := Value;
+  FResponse := Value;
 end;
 
 function TAmazonResponse.GetResponseCode: integer;
 begin
-  Result := fResponseCode;
+  Result := FResponseCode;
 end;
 
 function TAmazonResponse.GetReponseText: UTF8String;
 begin
-  Result := fReponseText;
+  Result := FReponseText;
 end;
 
 function TAmazonResponse.GetReponse: UTF8String;
 begin
-  Result := fResponse;
+  Result := FResponse;
 end;
 
 end.

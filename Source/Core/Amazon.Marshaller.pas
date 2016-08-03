@@ -29,8 +29,8 @@ type
       aIsSubOpenBracket: Boolean = False);
     function IsAnyKindOfGenericList(AType: TRttiType): Boolean;
   public
-    procedure GetSubRttiAttributekeys(var aJSON: TStringList;
-      aParentTagName: string; aCtx: TRttiContext; aObject: TObject;
+    procedure GetSubRttiAttributeKeys(var aJSON: TStringList;
+      aParentTagName: String; aCtx: TRttiContext; aObject: TObject;
       aIsClass: Boolean = False; aIsOpenBracket: Boolean = False;
       aIsListJSONArray: Boolean = False);
   end;
@@ -42,8 +42,8 @@ begin
   fTagName := aTagName;
 end;
 
-procedure TAmazonMarshaller.GetSubRttiAttributekeys(var aJSON: TStringList;
-  aParentTagName: string; aCtx: TRttiContext; aObject: TObject;
+procedure TAmazonMarshaller.GetSubRttiAttributeKeys(var aJSON: TStringList;
+  aParentTagName: String; aCtx: TRttiContext; aObject: TObject;
   aIsClass: Boolean = False; aIsOpenBracket: Boolean = False;
   aIsListJSONArray: Boolean = False);
 var
@@ -63,7 +63,7 @@ begin
   begin
     if IsAnyKindOfGenericList(aCtx.GetType(aObject.ClassType)) then
     begin
-      List := Tlist(aObject);
+      List := TList(aObject);
 
       OpenJSONArray(aJSON, aParentTagName);
       for I := 0 to List.Count - 1 do
